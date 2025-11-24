@@ -2,11 +2,13 @@
 
 import { useEffect, useRef } from "react";
 import { useTheme } from "next-themes";
+import { useVisual } from "@/components/visual-context";
 
 export default function PixelBackground() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const { theme } = useTheme();
+    const { isMono } = useVisual();
     const mouseRef = useRef({ x: 0, y: 0 });
     const randomPixelsRef = useRef<Set<string>>(new Set());
     const lastRandomUpdateRef = useRef(0);
@@ -233,26 +235,38 @@ export default function PixelBackground() {
                     opacity *= pixelProgress;
 
                     if (opacity > 0.05) {
-                        // Retro Color Palette (Cyberpunk/Arcade)
-                        const RETRO_COLORS = [
-                            '#FF0055', // Neon Red/Pink
-                            '#00FF9F', // Neon Green
-                            '#00B8FF', // Neon Blue
-                            '#7000FF', // Neon Purple
-                            '#FFBD00'  // Neon Yellow
-                        ];
+                        if (isMono) {
+                            // Monochrome Mode
+                            // Use shades of gray based on theme
+                            const baseColor = theme === 'dark' ? 255 : 0;
+                            // Add slight variation based on noise
+                            const variation = Math.floor(noise * 50);
+                            const c = theme === 'dark' ? baseColor - variation : baseColor + variation;
 
-                        // Select color based on position and time (quantized)
-                        // Use noise or position to pick an index
-                        const colorIndex = Math.floor((i * 0.1 + j * 0.1 + time * 2 + scrollY * 0.01) % RETRO_COLORS.length);
-                        const hex = RETRO_COLORS[Math.abs(colorIndex)];
+                            // Lower opacity for cleaner look
+                            ctx.fillStyle = `rgba(${c}, ${c}, ${c}, ${opacity * 0.3})`;
+                        } else {
+                            // Retro Color Palette (Cyberpunk/Arcade)
+                            const RETRO_COLORS = [
+                                '#FF0055', // Neon Red/Pink
+                                '#00FF9F', // Neon Green
+                                '#00B8FF', // Neon Blue
+                                '#7000FF', // Neon Purple
+                                '#FFBD00'  // Neon Yellow
+                            ];
 
-                        // Convert hex to rgba for opacity
-                        const r = parseInt(hex.slice(1, 3), 16);
-                        const g = parseInt(hex.slice(3, 5), 16);
-                        const b = parseInt(hex.slice(5, 7), 16);
+                            // Select color based on position and time (quantized)
+                            // Use noise or position to pick an index
+                            const colorIndex = Math.floor((i * 0.1 + j * 0.1 + time * 2 + scrollY * 0.01) % RETRO_COLORS.length);
+                            const hex = RETRO_COLORS[Math.abs(colorIndex)];
 
-                        ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${opacity})`;
+                            // Convert hex to rgba for opacity
+                            const r = parseInt(hex.slice(1, 3), 16);
+                            const g = parseInt(hex.slice(3, 5), 16);
+                            const b = parseInt(hex.slice(5, 7), 16);
+
+                            ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${opacity})`;
+                        }
 
                         const gap = 4;
                         ctx.fillRect(x + gap / 2, y + gap / 2, blockSize - gap, blockSize - gap);
@@ -269,7 +283,7 @@ export default function PixelBackground() {
             window.removeEventListener("resize", resize);
             cancelAnimationFrame(animationFrameId);
         };
-    }, [theme]);
+    }, [theme, isMono]);
 
     return (
         <div
