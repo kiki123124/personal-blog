@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  nextjs-blog:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nextjs-blog
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    # 如果有环境变量文件，取消以下注释
+    # env_file:
+    #   - .env.local

@@ -2,22 +2,46 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 
+export type BackgroundMode = 'pixel' | 'rain' | 'matrix';
+
 type VisualContextType = {
     isMono: boolean;
     toggleMono: () => void;
+    isFrozen: boolean;
+    toggleFrozen: () => void;
+    backgroundMode: BackgroundMode;
+    setBackgroundMode: (mode: BackgroundMode) => void;
 };
 
 const VisualContext = createContext<VisualContextType | undefined>(undefined);
 
 export function VisualProvider({ children }: { children: React.ReactNode }) {
     const [isMono, setIsMono] = useState(false);
+    const [isFrozen, setIsFrozen] = useState(false);
+    const [backgroundMode, setBackgroundMode] = useState<BackgroundMode>('pixel');
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
         setMounted(true);
-        const saved = localStorage.getItem("visual-mono");
-        if (saved) {
-            setIsMono(JSON.parse(saved));
+        const savedMono = localStorage.getItem("visual-mono");
+        if (savedMono) {
+            setIsMono(JSON.parse(savedMono));
+        }
+        const savedFrozen = localStorage.getItem("visual-frozen");
+        if (savedFrozen) {
+            setIsFrozen(JSON.parse(savedFrozen));
+        }
+        const savedMode = localStorage.getItem("visual-mode");
+        if (savedMode) {
+            // Migrate old 'rain' boolean if needed, though 'visual-rain' was the key
+            // If 'visual-rain' exists and is true, set to 'rain'
+            const savedRain = localStorage.getItem("visual-rain");
+            if (savedRain && JSON.parse(savedRain) === true) {
+                setBackgroundMode('rain');
+                localStorage.removeItem("visual-rain"); // Cleanup
+            } else {
+                setBackgroundMode(savedMode as BackgroundMode);
+            }
         }
     }, []);
 
@@ -29,13 +53,28 @@ export function VisualProvider({ children }: { children: React.ReactNode }) {
         });
     };
 
-    // Prevent hydration mismatch by not rendering until mounted, 
-    // or just accept that default is false. 
-    // For visual toggles, it's better to wait or use a specific technique, 
-    // but for now we'll just render children.
+    const toggleFrozen = () => {
+        setIsFrozen((prev) => {
+            const next = !prev;
+            localStorage.setItem("visual-frozen", JSON.stringify(next));
+            return next;
+        });
+    };
+
+    const handleSetBackgroundMode = (mode: BackgroundMode) => {
+        setBackgroundMode(mode);
+        localStorage.setItem("visual-mode", mode);
+    };
 
     return (
-        <VisualContext.Provider value={{ isMono, toggleMono }}>
+        <VisualContext.Provider value={{
+            isMono,
+            toggleMono,
+            isFrozen,
+            toggleFrozen,
+            backgroundMode,
+            setBackgroundMode: handleSetBackgroundMode
+        }}>
             {children}
         </VisualContext.Provider>
     );

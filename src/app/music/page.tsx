@@ -101,11 +101,11 @@ export default function MusicPage() {
 
                     {/* Playing Status Badge */}
                     {isPlaying && (
-                        <div className="absolute top-4 right-4 bg-black/80 backdrop-blur-md text-primary px-4 py-2 rounded-full border border-primary/30 flex items-center gap-2 shadow-lg z-30 animate-pulse">
+                        <div className="absolute top-4 right-4 bg-black/80 backdrop-blur-md text-white px-4 py-2 rounded-full border border-white/30 flex items-center gap-2 shadow-lg z-30 animate-pulse">
                             <div className="flex gap-1 h-3 items-end">
-                                <div className="w-1 bg-primary animate-[bounce_1s_infinite] h-full"></div>
-                                <div className="w-1 bg-primary animate-[bounce_1.2s_infinite] h-2/3"></div>
-                                <div className="w-1 bg-primary animate-[bounce_0.8s_infinite] h-full"></div>
+                                <div className="w-1 bg-white animate-[bounce_1s_infinite] h-full"></div>
+                                <div className="w-1 bg-white animate-[bounce_1.2s_infinite] h-2/3"></div>
+                                <div className="w-1 bg-white animate-[bounce_0.8s_infinite] h-full"></div>
                             </div>
                             <span className="text-xs font-bold tracking-widest">PLAYING</span>
                         </div>

@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
 import { ThemeProvider } from "@/components/theme-provider";
-import { ModeToggle } from "@/components/mode-toggle";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,9 +24,9 @@ import PixelBackground from "@/components/pixel-background";
 
 // ... imports
 
+import { PaletteToggle } from "@/components/palette-toggle";
 import { NavAvatar } from "@/components/nav-avatar";
 import { VisualProvider } from "@/components/visual-context";
-import { MonoToggle } from "@/components/mono-toggle";
 
 export default function RootLayout({
   children,
@@ -55,6 +54,7 @@ export default function RootLayout({
                   <span className="absolute top-0 left-0 translate-x-full group-hover:translate-x-0 transition-transform duration-500 text-blue-400 opacity-70 blur-[2px] mix-blend-screen delay-75">Kiki's Space</span>
                 </Link>
                 <div className="flex items-center gap-6 text-sm font-medium text-muted-foreground">
+                  <PaletteToggle />
                   <Link href="/blog" className="hover:text-foreground transition-colors">
                     博客
                   </Link>
@@ -65,8 +65,6 @@ export default function RootLayout({
                     管理
                   </Link>
                   <NavAvatar />
-                  <MonoToggle />
-                  <ModeToggle />
                 </div>
               </nav>
               <main className="flex-1 pt-24 px-6 max-w-4xl mx-auto w-full">

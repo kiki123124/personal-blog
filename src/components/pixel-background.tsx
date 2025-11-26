@@ -8,7 +8,7 @@ export default function PixelBackground() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const { theme } = useTheme();
-    const { isMono } = useVisual();
+    const { isMono, backgroundMode, isFrozen } = useVisual();
     const mouseRef = useRef({ x: 0, y: 0 });
     const randomPixelsRef = useRef<Set<string>>(new Set());
     const lastRandomUpdateRef = useRef(0);
@@ -75,6 +75,9 @@ export default function PixelBackground() {
         ]
     };
 
+    const particlesRef = useRef<any[]>([]);
+    const dropsRef = useRef<number[]>([]); // For Matrix drops
+
     useEffect(() => {
         const canvas = canvasRef.current;
         const container = containerRef.current;
@@ -95,6 +98,29 @@ export default function PixelBackground() {
         const resize = () => {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
+
+            // Re-init rain particles on resize
+            if (backgroundMode === 'rain') {
+                const density = 50; // Default density
+                const particleCount = Math.floor((density / 100) * 500) + 50;
+                particlesRef.current = [];
+                for (let i = 0; i < particleCount; i++) {
+                    particlesRef.current.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        baseSpeed: Math.random() * 15 + 10,
+                        length: Math.random() * 20 + 10,
+                        opacity: Math.random() * 0.5 + 0.1,
+                    });
+                }
+            } else if (backgroundMode === 'matrix') {
+                const fontSize = 14;
+                const columns = Math.floor(canvas.width / fontSize);
+                dropsRef.current = [];
+                for (let i = 0; i < columns; i++) {
+                    dropsRef.current[i] = Math.random() * -100; // Start above screen
+                }
+            }
         };
 
         // Initial resize
@@ -106,170 +132,222 @@ export default function PixelBackground() {
 
         const blockSize = 40; // Balanced block size
 
+        // Matrix characters
+        const katakana = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン';
+        const latin = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        const alphabet = katakana + latin;
+
         const draw = () => {
-            time += 0.001; // Moderate speed
+            if (!isFrozen) {
+                time += 0.001; // Moderate speed
+            }
             const scrollY = window.scrollY;
             const now = performance.now() / 1000;
-            const entranceDuration = 1.5;
             const timeSinceMount = now - mountTimeRef.current;
 
-            // Update random pixels every 0.5s
-            if (now - lastRandomUpdateRef.current > 0.5) {
-                lastRandomUpdateRef.current = now;
-                const newSet = new Set<string>();
+            // Common color logic for vibrant modes
+            const getVibrantColor = (index: number) => {
+                const RETRO_COLORS = [
+                    '#FF0055', '#00FF9F', '#00B8FF', '#7000FF', '#FFBD00'
+                ];
+                const colorIndex = Math.floor((index * 0.1 + time * 2) % RETRO_COLORS.length);
+                return RETRO_COLORS[Math.abs(colorIndex)];
+            };
+
+            if (backgroundMode === 'matrix') {
+                // MATRIX MODE
+                ctx.fillStyle = theme === 'dark' ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.05)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                const fontSize = 14;
+                ctx.font = `${fontSize}px monospace`;
+
+                // Initialize drops if empty
+                if (dropsRef.current.length === 0) {
+                    const columns = Math.floor(canvas.width / fontSize);
+                    for (let i = 0; i < columns; i++) {
+                        dropsRef.current[i] = Math.random() * -100;
+                    }
+                }
+
+                for (let i = 0; i < dropsRef.current.length; i++) {
+                    const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+                    const x = i * fontSize;
+                    const y = dropsRef.current[i] * fontSize;
+
+                    if (isMono) {
+                        ctx.fillStyle = theme === 'dark' ? '#0f0' : '#000'; // Classic Green or Black
+                    } else {
+                        ctx.fillStyle = getVibrantColor(i);
+                    }
+
+                    ctx.fillText(text, x, y);
+
+                    if (!isFrozen) {
+                        if (y * fontSize > canvas.height && Math.random() > 0.975) {
+                            dropsRef.current[i] = 0;
+                        }
+                        dropsRef.current[i]++;
+                    }
+                }
+
+            } else if (backgroundMode === 'rain') {
+                // RAIN MODE
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                let color = theme === 'dark' ? '#ffffff' : '#000000';
+
+                // Initialize particles if empty
+                if (particlesRef.current.length === 0) {
+                    const density = 50;
+                    const particleCount = Math.floor((density / 100) * 500) + 50;
+                    for (let i = 0; i < particleCount; i++) {
+                        particlesRef.current.push({
+                            x: Math.random() * canvas.width,
+                            y: Math.random() * canvas.height,
+                            baseSpeed: Math.random() * 15 + 10,
+                            length: Math.random() * 20 + 10,
+                            opacity: Math.random() * 0.5 + 0.1,
+                        });
+                    }
+                }
+
+                ctx.lineWidth = 1;
+                ctx.lineCap = 'round';
+                const speedMultiplier = 1.5;
+
+                for (let i = 0; i < particlesRef.current.length; i++) {
+                    const p = particlesRef.current[i];
+
+                    ctx.beginPath();
+                    ctx.moveTo(p.x, p.y);
+                    ctx.lineTo(p.x, p.y + p.length);
+
+                    if (isMono) {
+                        ctx.strokeStyle = color;
+                    } else {
+                        // Use vibrant colors for rain too
+                        ctx.strokeStyle = getVibrantColor(i);
+                    }
+
+                    ctx.globalAlpha = p.opacity;
+                    ctx.stroke();
+
+                    if (!isFrozen) {
+                        p.y += p.baseSpeed * speedMultiplier;
+
+                        if (p.y > canvas.height) {
+                            p.y = -p.length;
+                            p.x = Math.random() * canvas.width;
+                            p.baseSpeed = Math.random() * 15 + 10;
+                        }
+                    }
+                }
+                ctx.globalAlpha = 1;
+
+            } else {
+                // PIXEL GRID MODE LOGIC
+                if (particlesRef.current.length > 0) particlesRef.current = [];
+                if (dropsRef.current.length > 0) dropsRef.current = [];
+
+                // Update random pixels every 0.5s
+                if (!isFrozen && now - lastRandomUpdateRef.current > 0.5) {
+                    lastRandomUpdateRef.current = now;
+                    const newSet = new Set<string>();
+                    const cols = Math.ceil(canvas.width / blockSize);
+                    const rows = Math.ceil(canvas.height / blockSize);
+                    for (let k = 0; k < 20; k++) {
+                        const ri = Math.floor(Math.random() * cols);
+                        const rj = Math.floor(Math.random() * rows);
+                        newSet.add(`${ri},${rj}`);
+                    }
+                    randomPixelsRef.current = newSet;
+                }
+
+                ctx.fillStyle = theme === 'dark' ? '#000000' : '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
                 const cols = Math.ceil(canvas.width / blockSize);
                 const rows = Math.ceil(canvas.height / blockSize);
-                // Add 20 random pixels
-                for (let k = 0; k < 20; k++) {
-                    const ri = Math.floor(Math.random() * cols);
-                    const rj = Math.floor(Math.random() * rows);
-                    newSet.add(`${ri},${rj}`);
-                }
-                randomPixelsRef.current = newSet;
-            }
+                const centerCol = Math.floor(cols / 2);
+                const centerRow = Math.floor(rows / 2);
 
-            // Clear and fill background to prevent transparency issues with z-index -1
-            ctx.fillStyle = theme === 'dark' ? '#000000' : '#ffffff';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+                for (let i = 0; i < cols; i++) {
+                    for (let j = 0; j < rows; j++) {
+                        const x = i * blockSize;
+                        const y = j * blockSize;
+                        const centerX = canvas.width / 2;
+                        const centerY = canvas.height / 2;
+                        const distToMouse = Math.sqrt(
+                            Math.pow(x - mouseRef.current.x, 2) + Math.pow(y - mouseRef.current.y, 2)
+                        );
 
-            const cols = Math.ceil(canvas.width / blockSize);
-            const rows = Math.ceil(canvas.height / blockSize);
+                        const seed = seedRef.current;
+                        const scrollEffect = scrollY * 0.002;
+                        const n1 = Math.sin(i * 0.1 + time + seed + scrollEffect);
+                        const n2 = Math.cos(j * 0.1 + time + seed - scrollEffect);
+                        const noise = (n1 * n2) * 0.5 + 0.5;
 
-            // Center coordinates in grid units
-            const centerCol = Math.floor(cols / 2);
-            const centerRow = Math.floor(rows / 2);
+                        let opacity = 0;
 
-            for (let i = 0; i < cols; i++) {
-                for (let j = 0; j < rows; j++) {
-                    const x = i * blockSize;
-                    const y = j * blockSize;
+                        // 1. Center Shape Logic
+                        if (shapeTypeRef.current !== 'circle') {
+                            const shape = SHAPES[shapeTypeRef.current as keyof typeof SHAPES];
+                            const shapeH = shape.length;
+                            const shapeW = shape[0].length;
+                            const startCol = centerCol - Math.floor(shapeW / 2);
+                            const startRow = centerRow - Math.floor(shapeH / 2);
+                            const localCol = i - startCol;
+                            const localRow = j - startRow;
 
-                    // Calculate distance to center
-                    const centerX = canvas.width / 2;
-                    const centerY = canvas.height / 2;
-                    const distToCenter = Math.sqrt(
-                        Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2)
-                    );
-
-                    // Calculate distance to mouse
-                    const distToMouse = Math.sqrt(
-                        Math.pow(x - mouseRef.current.x, 2) + Math.pow(y - mouseRef.current.y, 2)
-                    );
-
-                    // Organic Noise Calculation
-                    // 1. Use seedRef for uniqueness on refresh
-                    // 2. Use scrollY to modulate the phase/frequency, causing pixels to "morph" rather than slide
-                    const seed = seedRef.current;
-                    const scrollEffect = scrollY * 0.002;
-
-                    // Complex organic noise function
-                    // Multiplicative noise to avoid diagonals (Grid/Blob structure)
-                    const n1 = Math.sin(i * 0.1 + time + seed + scrollEffect);
-                    const n2 = Math.cos(j * 0.1 + time + seed - scrollEffect);
-
-                    // Multiplicative interaction creates blobs/grid instead of diagonal waves
-                    const noise = (n1 * n2) * 0.5 + 0.5; // Normalized roughly 0-1
-
-                    let opacity = 0;
-
-                    // 1. Center Shape Logic
-                    let isShape = false;
-                    if (shapeTypeRef.current !== 'circle') {
-                        const shape = SHAPES[shapeTypeRef.current as keyof typeof SHAPES];
-                        const shapeH = shape.length;
-                        const shapeW = shape[0].length;
-                        const startCol = centerCol - Math.floor(shapeW / 2);
-                        const startRow = centerRow - Math.floor(shapeH / 2);
-
-                        const localCol = i - startCol;
-                        const localRow = j - startRow;
-
-                        if (localCol >= 0 && localCol < shapeW && localRow >= 0 && localRow < shapeH) {
-                            if (shape[localRow][localCol] === '1') {
-                                opacity = 1.0;
-                                isShape = true;
+                            if (localCol >= 0 && localCol < shapeW && localRow >= 0 && localRow < shapeH) {
+                                if (shape[localRow][localCol] === '1') {
+                                    opacity = 1.0;
+                                }
                             }
                         }
-                    }
 
-                    // Fallback to circle if not a shape pixel or if shape is circle
-                    if (!isShape) {
-                        if (shapeTypeRef.current === 'circle' && distToCenter < 100) {
-                            opacity = 1.0;
-                        } else if (distToCenter < 300) {
-                            const fade = 1 - (distToCenter - 100) / 200;
-                            opacity = fade * (0.3 + noise * 0.5);
-                        }
-                    }
-
-                    // 2. Random Flickering
-                    if (randomPixelsRef.current.has(`${i},${j}`)) {
-                        opacity = Math.max(opacity, 0.8);
-                    }
-
-                    // 3. Organic Tiling (Scroll Density)
-                    // Reduce density at the top (scrollY = 0)
-                    const scrollDensity = Math.min((scrollY + 200) / 800, 1.0);
-
-                    // Increased threshold significantly to 0.85 to reduce count
-                    if (noise > 0.85) {
-                        // Apply scroll density factor
-                        const baseTiling = (noise - 0.85) * 3.0;
-                        opacity = Math.max(opacity, baseTiling * scrollDensity);
-                    }
-
-                    // 4. Mouse Interaction (Eraser / Void)
-                    // Create a blank space around the mouse
-                    if (distToMouse < 100) {
-                        const mouseRepel = Math.pow(distToMouse / 100, 2); // Smooth ease-in
-                        opacity *= mouseRepel;
-                    }
-
-                    // 5. Entrance Animation (Staggered)
-                    // Pixels further from center appear later? Or random?
-                    // Let's do random staggered appearance
-                    const staggerDelay = (Math.sin(i * j + seed) + 1) * 0.5; // 0-1
-                    const pixelEntranceStart = staggerDelay * 0.5; // Start between 0s and 0.5s
-                    const pixelProgress = Math.max(0, Math.min(1, (timeSinceMount - pixelEntranceStart) / 0.5));
-
-                    opacity *= pixelProgress;
-
-                    if (opacity > 0.05) {
-                        if (isMono) {
-                            // Monochrome Mode
-                            // Use shades of gray based on theme
-                            const baseColor = theme === 'dark' ? 255 : 0;
-                            // Add slight variation based on noise
-                            const variation = Math.floor(noise * 50);
-                            const c = theme === 'dark' ? baseColor - variation : baseColor + variation;
-
-                            // Lower opacity for cleaner look
-                            ctx.fillStyle = `rgba(${c}, ${c}, ${c}, ${opacity * 0.3})`;
-                        } else {
-                            // Retro Color Palette (Cyberpunk/Arcade)
-                            const RETRO_COLORS = [
-                                '#FF0055', // Neon Red/Pink
-                                '#00FF9F', // Neon Green
-                                '#00B8FF', // Neon Blue
-                                '#7000FF', // Neon Purple
-                                '#FFBD00'  // Neon Yellow
-                            ];
-
-                            // Select color based on position and time (quantized)
-                            // Use noise or position to pick an index
-                            const colorIndex = Math.floor((i * 0.1 + j * 0.1 + time * 2 + scrollY * 0.01) % RETRO_COLORS.length);
-                            const hex = RETRO_COLORS[Math.abs(colorIndex)];
-
-                            // Convert hex to rgba for opacity
-                            const r = parseInt(hex.slice(1, 3), 16);
-                            const g = parseInt(hex.slice(3, 5), 16);
-                            const b = parseInt(hex.slice(5, 7), 16);
-
-                            ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${opacity})`;
+                        // 2. Random Flickering
+                        if (randomPixelsRef.current.has(`${i},${j}`)) {
+                            opacity = Math.max(opacity, 0.8);
                         }
 
-                        const gap = 4;
-                        ctx.fillRect(x + gap / 2, y + gap / 2, blockSize - gap, blockSize - gap);
+                        // 3. Organic Tiling
+                        const scrollDensity = Math.min((scrollY + 200) / 800, 1.0);
+                        if (noise > 0.85) {
+                            const baseTiling = (noise - 0.85) * 3.0;
+                            opacity = Math.max(opacity, baseTiling * scrollDensity);
+                        }
+
+                        // 4. Mouse Interaction
+                        if (distToMouse < 100) {
+                            const mouseRepel = Math.pow(distToMouse / 100, 2);
+                            opacity *= mouseRepel;
+                        }
+
+                        // 5. Entrance Animation
+                        const staggerDelay = (Math.sin(i * j + seed) + 1) * 0.5;
+                        const pixelEntranceStart = staggerDelay * 0.5;
+                        const pixelProgress = Math.max(0, Math.min(1, (timeSinceMount - pixelEntranceStart) / 0.5));
+                        opacity *= pixelProgress;
+
+                        if (opacity > 0.05) {
+                            if (isMono) {
+                                const baseColor = theme === 'dark' ? 255 : 0;
+                                const variation = Math.floor(noise * 50);
+                                const c = theme === 'dark' ? baseColor - variation : baseColor + variation;
+                                ctx.fillStyle = `rgba(${c}, ${c}, ${c}, ${opacity * 0.3})`;
+                            } else {
+                                const hex = getVibrantColor(i + j);
+                                const r = parseInt(hex.slice(1, 3), 16);
+                                const g = parseInt(hex.slice(3, 5), 16);
+                                const b = parseInt(hex.slice(5, 7), 16);
+                                ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${opacity})`;
+                            }
+
+                            const gap = 4;
+                            ctx.fillRect(x + gap / 2, y + gap / 2, blockSize - gap, blockSize - gap);
+                        }
                     }
                 }
             }
@@ -283,7 +361,7 @@ export default function PixelBackground() {
             window.removeEventListener("resize", resize);
             cancelAnimationFrame(animationFrameId);
         };
-    }, [theme, isMono]);
+    }, [theme, isMono, backgroundMode, isFrozen]);
 
     return (
         <div

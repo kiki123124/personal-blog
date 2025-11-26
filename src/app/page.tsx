@@ -166,7 +166,6 @@ export default function Home() {
           </div>
 
           <div className="space-y-4 overflow-hidden px-4 relative z-20">
-            <div className="absolute inset-0 bg-black/30 blur-3xl -z-10 rounded-full transform scale-150"></div>
             <h1 className="text-6xl md:text-8xl font-bold tracking-tighter text-foreground hero-text-reveal drop-shadow-[0_0_20px_rgba(255,255,255,0.8)]">
               <TypewriterText text="Hi, I'm Kiki" speed={150} />
             </h1>
