@@ -34,8 +34,11 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# 复制必要文件
+# 复制必要文件（不包括会被挂载覆盖的目录）
 COPY --from=builder /app/public ./public
+# 创建挂载点目录
+RUN mkdir -p ./public/uploads ./public/music && \
+    chown -R nextjs:nodejs ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
