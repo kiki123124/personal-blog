@@ -14,7 +14,7 @@ interface MusicContextType {
     currentTrack: MusicTrack | null;
     isPlaying: boolean;
     activeIndex: number;
-    audioRef: React.RefObject<HTMLAudioElement>;
+    audioRef: React.RefObject<HTMLAudioElement | null>;
     playTrack: (index: number) => void;
     nextTrack: () => void;
     prevTrack: () => void;
