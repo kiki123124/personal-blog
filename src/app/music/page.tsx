@@ -1,30 +1,14 @@
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { Play, Pause, Music as MusicIcon } from 'lucide-react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
-
-interface MusicTrack {
-    filename: string;
-    title?: string;
-    artist?: string;
-    coverImage?: string;
-}
+import { useMusic } from '@/components/music-context';
 
 export default function MusicPage() {
-    const [tracks, setTracks] = useState<MusicTrack[]>([]);
-    const [currentTrack, setCurrentTrack] = useState<string | null>(null);
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [activeIndex, setActiveIndex] = useState<number>(-1);
-    const audioRef = useRef<HTMLAudioElement | null>(null);
+    const { tracks, currentTrack, isPlaying, activeIndex, playTrack, nextTrack, prevTrack } = useMusic();
     const containerRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        fetch('/api/music')
-            .then((res) => res.json())
-            .then((data) => setTracks(data));
-    }, []);
 
     useGSAP(() => {
         gsap.fromTo(".vinyl-record",
@@ -36,39 +20,6 @@ export default function MusicPage() {
             { x: 0, opacity: 1, duration: 0.8, delay: 0.3, ease: "power2.out" }
         );
     }, { scope: containerRef });
-
-    const playTrack = (index: number) => {
-        const track = tracks[index];
-        if (currentTrack === track.filename) {
-            if (isPlaying) {
-                audioRef.current?.pause();
-                setIsPlaying(false);
-            } else {
-                audioRef.current?.play();
-                setIsPlaying(true);
-            }
-        } else {
-            setCurrentTrack(track.filename);
-            setActiveIndex(index);
-            setIsPlaying(true);
-        }
-    };
-
-    const nextTrack = () => {
-        if (activeIndex < tracks.length - 1) {
-            playTrack(activeIndex + 1);
-        } else {
-            playTrack(0); // Loop to start
-        }
-    };
-
-    const prevTrack = () => {
-        if (activeIndex > 0) {
-            playTrack(activeIndex - 1);
-        } else {
-            playTrack(tracks.length - 1); // Loop to end
-        }
-    };
 
     const activeTrack = activeIndex !== -1 ? tracks[activeIndex] : null;
 
@@ -177,16 +128,6 @@ export default function MusicPage() {
                     </div>
                 </div>
             </div>
-
-            {currentTrack && (
-                <audio
-                    ref={audioRef}
-                    src={`/music/${currentTrack}`}
-                    autoPlay
-                    onEnded={nextTrack}
-                    className="hidden"
-                />
-            )}
         </div>
     );
 }

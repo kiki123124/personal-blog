@@ -11,6 +11,11 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
+    volumes:
+      # 持久化上传的图片（头像、博客封面、音乐封面等）
+      - ./uploads:/app/public/uploads
+      # 持久化内容数据（博客文章、个人资料等）
+      - ./src/content:/app/src/content
     # 如果有环境变量文件，取消以下注释
     # env_file:
     #   - .env.local

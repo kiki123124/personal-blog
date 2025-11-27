@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-export type BackgroundMode = 'pixel' | 'rain' | 'matrix';
+export type BackgroundMode = 'pixel' | 'rain' | 'matrix' | 'advanced';
 
 type VisualContextType = {
     isMono: boolean;
@@ -11,6 +11,8 @@ type VisualContextType = {
     toggleFrozen: () => void;
     backgroundMode: BackgroundMode;
     setBackgroundMode: (mode: BackgroundMode) => void;
+    effectSpeed: number;
+    setEffectSpeed: (speed: number) => void;
 };
 
 const VisualContext = createContext<VisualContextType | undefined>(undefined);
@@ -18,7 +20,8 @@ const VisualContext = createContext<VisualContextType | undefined>(undefined);
 export function VisualProvider({ children }: { children: React.ReactNode }) {
     const [isMono, setIsMono] = useState(false);
     const [isFrozen, setIsFrozen] = useState(false);
-    const [backgroundMode, setBackgroundMode] = useState<BackgroundMode>('pixel');
+    const [backgroundMode, setBackgroundMode] = useState<BackgroundMode>('advanced'); // Default to advanced mode
+    const [effectSpeed, setEffectSpeedState] = useState(1); // 1x is normal speed
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
@@ -43,6 +46,10 @@ export function VisualProvider({ children }: { children: React.ReactNode }) {
                 setBackgroundMode(savedMode as BackgroundMode);
             }
         }
+        const savedSpeed = localStorage.getItem("visual-speed");
+        if (savedSpeed) {
+            setEffectSpeedState(JSON.parse(savedSpeed));
+        }
     }, []);
 
     const toggleMono = () => {
@@ -66,6 +73,11 @@ export function VisualProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem("visual-mode", mode);
     };
 
+    const handleSetEffectSpeed = (speed: number) => {
+        setEffectSpeedState(speed);
+        localStorage.setItem("visual-speed", JSON.stringify(speed));
+    };
+
     return (
         <VisualContext.Provider value={{
             isMono,
@@ -73,7 +85,9 @@ export function VisualProvider({ children }: { children: React.ReactNode }) {
             isFrozen,
             toggleFrozen,
             backgroundMode,
-            setBackgroundMode: handleSetBackgroundMode
+            setBackgroundMode: handleSetBackgroundMode,
+            effectSpeed,
+            setEffectSpeed: handleSetEffectSpeed
         }}>
             {children}
         </VisualContext.Provider>

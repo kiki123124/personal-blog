@@ -8,7 +8,7 @@ export default function PixelBackground() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const { theme } = useTheme();
-    const { isMono, backgroundMode, isFrozen } = useVisual();
+    const { isMono, backgroundMode, isFrozen, effectSpeed } = useVisual();
     const mouseRef = useRef({ x: 0, y: 0 });
     const randomPixelsRef = useRef<Set<string>>(new Set());
     const lastRandomUpdateRef = useRef(0);
@@ -139,7 +139,7 @@ export default function PixelBackground() {
 
         const draw = () => {
             if (!isFrozen) {
-                time += 0.001; // Moderate speed
+                time += 0.001 * effectSpeed; // Apply speed multiplier
             }
             const scrollY = window.scrollY;
             const now = performance.now() / 1000;
@@ -187,7 +187,7 @@ export default function PixelBackground() {
                         if (y * fontSize > canvas.height && Math.random() > 0.975) {
                             dropsRef.current[i] = 0;
                         }
-                        dropsRef.current[i]++;
+                        dropsRef.current[i] += effectSpeed; // Apply speed multiplier to matrix
                     }
                 }
 
@@ -214,7 +214,7 @@ export default function PixelBackground() {
 
                 ctx.lineWidth = 1;
                 ctx.lineCap = 'round';
-                const speedMultiplier = 1.5;
+                const speedMultiplier = 1.5 * effectSpeed; // Apply speed multiplier to rain
 
                 for (let i = 0; i < particlesRef.current.length; i++) {
                     const p = particlesRef.current[i];
@@ -245,13 +245,121 @@ export default function PixelBackground() {
                 }
                 ctx.globalAlpha = 1;
 
+            } else if (backgroundMode === 'advanced') {
+                // ADVANCED MODE - Kanye Aesthetic: Minimal, Sacred, Golden
+                ctx.fillStyle = theme === 'dark' ? '#000000' : '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Initialize particles for advanced mode
+                if (particlesRef.current.length === 0) {
+                    const particleCount = 8; // Minimal count
+                    for (let i = 0; i < particleCount; i++) {
+                        particlesRef.current.push({
+                            x: Math.random() * canvas.width,
+                            y: Math.random() * canvas.height,
+                            vx: (Math.random() - 0.5) * 0.5,
+                            vy: (Math.random() - 0.5) * 0.5,
+                            size: Math.random() * 40 + 60,
+                            phase: Math.random() * Math.PI * 2,
+                            type: Math.random() > 0.7 ? 'triangle' : 'circle'
+                        });
+                    }
+                }
+
+                // Draw sacred geometry with halos
+                for (let i = 0; i < particlesRef.current.length; i++) {
+                    const p = particlesRef.current[i];
+
+                    // Breathing effect
+                    const breathe = Math.sin(time * 0.5 + p.phase) * 0.1 + 1;
+                    const currentSize = p.size * breathe;
+
+                    // Golden glow color
+                    const glowColor = isMono
+                        ? (theme === 'dark' ? '255, 255, 255' : '0, 0, 0')
+                        : '255, 215, 0'; // Gold #FFD700
+
+                    // Draw multiple halos (神圣光晕)
+                    for (let j = 4; j > 0; j--) {
+                        const haloSize = currentSize * (1 + j * 0.3);
+                        const haloOpacity = (0.15 / j) * (isMono ? 0.3 : 1);
+
+                        const gradient = ctx.createRadialGradient(
+                            p.x, p.y, 0,
+                            p.x, p.y, haloSize
+                        );
+                        gradient.addColorStop(0, `rgba(${glowColor}, ${haloOpacity * 0.8})`);
+                        gradient.addColorStop(0.5, `rgba(${glowColor}, ${haloOpacity * 0.3})`);
+                        gradient.addColorStop(1, `rgba(${glowColor}, 0)`);
+
+                        ctx.fillStyle = gradient;
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, haloSize, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+
+                    // Draw core shape
+                    if (p.type === 'circle') {
+                        // Circle with gradient
+                        const coreGradient = ctx.createRadialGradient(
+                            p.x, p.y, 0,
+                            p.x, p.y, currentSize * 0.4
+                        );
+                        coreGradient.addColorStop(0, `rgba(${glowColor}, 0.6)`);
+                        coreGradient.addColorStop(1, `rgba(${glowColor}, 0.1)`);
+
+                        ctx.fillStyle = coreGradient;
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, currentSize * 0.4, 0, Math.PI * 2);
+                        ctx.fill();
+                    } else {
+                        // Triangle (equilateral)
+                        ctx.fillStyle = `rgba(${glowColor}, 0.3)`;
+                        ctx.beginPath();
+                        const angle = time * 0.2 + p.phase;
+                        for (let k = 0; k < 3; k++) {
+                            const a = angle + (k * Math.PI * 2 / 3);
+                            const px = p.x + Math.cos(a) * currentSize * 0.4;
+                            const py = p.y + Math.sin(a) * currentSize * 0.4;
+                            if (k === 0) ctx.moveTo(px, py);
+                            else ctx.lineTo(px, py);
+                        }
+                        ctx.closePath();
+                        ctx.fill();
+                    }
+
+                    // Gentle mouse interaction
+                    const dx = mouseRef.current.x - p.x;
+                    const dy = mouseRef.current.y - p.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 200) {
+                        const force = (200 - dist) / 200 * 0.02;
+                        p.x += dx * force * 0.1;
+                        p.y += dy * force * 0.1;
+                    }
+
+                    // Slow elegant movement
+                    if (!isFrozen) {
+                        p.x += p.vx * effectSpeed;
+                        p.y += p.vy * effectSpeed;
+
+                        // Bounce off edges
+                        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+                        // Keep in bounds
+                        p.x = Math.max(0, Math.min(canvas.width, p.x));
+                        p.y = Math.max(0, Math.min(canvas.height, p.y));
+                    }
+                }
+
             } else {
                 // PIXEL GRID MODE LOGIC
                 if (particlesRef.current.length > 0) particlesRef.current = [];
                 if (dropsRef.current.length > 0) dropsRef.current = [];
 
                 // Update random pixels every 0.5s
-                if (!isFrozen && now - lastRandomUpdateRef.current > 0.5) {
+                if (!isFrozen && now - lastRandomUpdateRef.current > 0.5 / effectSpeed) {
                     lastRandomUpdateRef.current = now;
                     const newSet = new Set<string>();
                     const cols = Math.ceil(canvas.width / blockSize);
@@ -361,7 +469,7 @@ export default function PixelBackground() {
             window.removeEventListener("resize", resize);
             cancelAnimationFrame(animationFrameId);
         };
-    }, [theme, isMono, backgroundMode, isFrozen]);
+    }, [theme, isMono, backgroundMode, isFrozen, effectSpeed]);
 
     return (
         <div
