@@ -19,7 +19,9 @@ export function GlobalMusicPlayer() {
                 >
                     {currentTrack.coverImage ? (
                         <img
-                            src={currentTrack.coverImage}
+                            src={currentTrack.coverImage.startsWith('/uploads/')
+                                ? `/api/static${currentTrack.coverImage}`
+                                : currentTrack.coverImage}
                             alt={currentTrack.title}
                             className="w-full h-full rounded-full object-cover"
                         />
@@ -61,7 +63,9 @@ export function GlobalMusicPlayer() {
                         <div className={`w-16 h-16 rounded-xl overflow-hidden border-2 border-primary/30 ${isPlaying ? 'animate-pulse' : ''}`}>
                             {currentTrack.coverImage ? (
                                 <img
-                                    src={currentTrack.coverImage}
+                                    src={currentTrack.coverImage.startsWith('/uploads/')
+                                        ? `/api/static${currentTrack.coverImage}`
+                                        : currentTrack.coverImage}
                                     alt={currentTrack.title}
                                     className="w-full h-full object-cover"
                                 />

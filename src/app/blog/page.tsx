@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { PostData } from '@/lib/posts';
+import { getStaticUrl } from '@/lib/utils';
 
 export default function BlogPage() {
     const [posts, setPosts] = useState<PostData[]>([]);
@@ -55,7 +56,7 @@ export default function BlogPage() {
                                 <div className="group h-full flex flex-col rounded-2xl border border-border bg-card overflow-hidden hover:shadow-lg transition-all hover:-translate-y-1">
                                     {post.coverImage && (
                                         <div className="h-48 w-full overflow-hidden">
-                                            <img src={post.coverImage} alt={post.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                                            <img src={getStaticUrl(post.coverImage)} alt={post.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                                         </div>
                                     )}
                                     <div className="p-6 flex-1 flex flex-col">

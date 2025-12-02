@@ -109,7 +109,7 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
             {currentTrack && (
                 <audio
                     ref={audioRef}
-                    src={`/music/${currentTrack.filename}`}
+                    src={`/api/static/music/${currentTrack.filename}`}
                     onEnded={nextTrack}
                     className="hidden"
                 />

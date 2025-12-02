@@ -5,6 +5,7 @@ import { Play, Pause, Music as MusicIcon } from 'lucide-react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { useMusic } from '@/components/music-context';
+import { getStaticUrl } from '@/lib/utils';
 
 export default function MusicPage() {
     const { tracks, currentTrack, isPlaying, activeIndex, playTrack, nextTrack, prevTrack } = useMusic();
@@ -38,7 +39,7 @@ export default function MusicPage() {
                         {/* Cover Art */}
                         <div className="w-[65%] h-[65%] rounded-full overflow-hidden relative z-10 border-4 border-black">
                             {activeTrack?.coverImage ? (
-                                <img src={activeTrack.coverImage} alt="Cover" className="w-full h-full object-cover" />
+                                <img src={getStaticUrl(activeTrack.coverImage)} alt="Cover" className="w-full h-full object-cover" />
                             ) : (
                                 <div className="w-full h-full bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center">
                                     <MusicIcon size={64} className="opacity-50" />

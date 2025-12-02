@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Upload, FileText, Save, Image as ImageIcon, Music as MusicIcon, Trash2, Plus, X } from 'lucide-react';
 import { PostData } from '@/lib/posts';
+import { getStaticUrl } from '@/lib/utils';
 
 export default function AdminPage() {
     const [activeTab, setActiveTab] = useState<'post' | 'manage-posts' | 'music' | 'manage-music' | 'profile'>('post');
@@ -499,7 +500,7 @@ function ManageMusic() {
                     <div key={track.filename} className="flex items-center justify-between p-4 bg-card border border-border rounded-lg">
                         <div className="flex items-center gap-4">
                             {track.coverImage && (
-                                <img src={track.coverImage} alt={track.title} className="w-12 h-12 rounded object-cover" />
+                                <img src={getStaticUrl(track.coverImage)} alt={track.title} className="w-12 h-12 rounded object-cover" />
                             )}
                             <div>
                                 <h3 className="font-medium">{track.title || track.filename}</h3>

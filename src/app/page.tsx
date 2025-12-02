@@ -9,6 +9,7 @@ import { GlitchText } from "@/components/glitch-text";
 import { TypewriterText } from "@/components/typewriter-text";
 import { PersonalIntro } from "@/components/personal-intro";
 import { SocialLinks } from "@/components/social-links";
+import { getStaticUrl } from "@/lib/utils";
 
 gsap.registerPlugin(useGSAP);
 
@@ -157,7 +158,7 @@ export default function Home() {
           <div className="relative w-48 h-48 md:w-56 md:h-56 rounded-full overflow-hidden border-2 border-primary/50 shadow-[0_0_30px_rgba(0,255,128,0.3)] ring-4 ring-primary/20 hero-text-reveal group cursor-pointer" onClick={handleAvatarClick}>
             <div className="absolute inset-0 bg-primary/20 animate-pulse rounded-full blur-xl group-hover:bg-primary/40 transition-colors"></div>
             {profile?.avatar ? (
-              <img src={profile.avatar} alt="Avatar" className={`relative z-10 w-full h-full object-cover hover:scale-110 transition-all duration-700 ${isAvatarGrayscale ? 'grayscale hover:grayscale-0' : ''}`} />
+              <img src={getStaticUrl(profile.avatar)} alt="Avatar" className={`relative z-10 w-full h-full object-cover hover:scale-110 transition-all duration-700 ${isAvatarGrayscale ? 'grayscale hover:grayscale-0' : ''}`} />
             ) : (
               <div className="relative z-10 w-full h-full bg-black flex items-center justify-center text-6xl border-4 border-primary">
                 🐰
@@ -259,7 +260,7 @@ export default function Home() {
                 <Link key={post.slug} href={`/blog/${post.slug}`} className="group block">
                   <div className="h-64 rounded-2xl bg-background/40 backdrop-blur-md border border-white/10 overflow-hidden relative transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-[0_0_30px_rgba(0,255,128,0.15)]">
                     {post.coverImage && (
-                      <img src={post.coverImage} alt={post.title} className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity" />
+                      <img src={getStaticUrl(post.coverImage)} alt={post.title} className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity" />
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent z-10"></div>
                     <div className="absolute bottom-0 left-0 p-6 z-20 space-y-2">
@@ -292,7 +293,7 @@ export default function Home() {
                 <Link key={track.filename} href="/music" className="group block">
                   <div className="aspect-square rounded-xl bg-background/40 backdrop-blur-md border border-white/10 overflow-hidden relative transition-all duration-500 group-hover:scale-105 group-hover:shadow-[0_0_20px_rgba(0,255,128,0.2)]">
                     {track.coverImage ? (
-                      <img src={track.coverImage} alt={track.title} className="w-full h-full object-cover" />
+                      <img src={getStaticUrl(track.coverImage)} alt={track.title} className="w-full h-full object-cover" />
                     ) : (
                       <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-purple-500/20 group-hover:opacity-100 transition-opacity"></div>
                     )}
