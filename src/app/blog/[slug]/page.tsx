@@ -5,7 +5,7 @@ import ReactMarkdown from 'react-markdown';
 
 // Generate static params for all posts
 export async function generateStaticParams() {
-    const posts = getSortedPostsData();
+    const posts = await getSortedPostsData();
     return posts.map((post) => ({
         slug: post.slug,
     }));
@@ -14,7 +14,7 @@ export async function generateStaticParams() {
 export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
     const decodedSlug = decodeURIComponent(slug);
-    const post = getPostData(decodedSlug);
+    const post = await getPostData(decodedSlug);
 
     return (
         <article className="max-w-3xl mx-auto pb-20">
