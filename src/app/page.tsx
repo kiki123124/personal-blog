@@ -396,51 +396,6 @@ export default function Home() {
               </motion.div>
 
               {/* Social Links */}
-              {profile?.socials && (
-                <motion.div
-                  className="flex flex-wrap gap-6 text-sm"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 1.3 }}
-                >
-                  {profile.socials.github && (
-                    <motion.a
-                      href={`https://github.com/${profile.socials.github}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-neutral-600 dark:text-neutral-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors relative group"
-                      whileHover={{ y: -2 }}
-                    >
-                      GitHub
-                      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-amber-500 group-hover:w-full transition-all duration-300" />
-                    </motion.a>
-                  )}
-                  {profile.socials.x && (
-                    <motion.a
-                      href={`https://x.com/${profile.socials.x}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-neutral-600 dark:text-neutral-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors relative group"
-                      whileHover={{ y: -2 }}
-                    >
-                      X / Twitter
-                      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-amber-500 group-hover:w-full transition-all duration-300" />
-                    </motion.a>
-                  )}
-                  {profile.socials.telegram && (
-                    <motion.a
-                      href={`https://t.me/${profile.socials.telegram}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-neutral-600 dark:text-neutral-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors relative group"
-                      whileHover={{ y: -2 }}
-                    >
-                      Telegram
-                      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-amber-500 group-hover:w-full transition-all duration-300" />
-                    </motion.a>
-                  )}
-                </motion.div>
-              )}
             </div>
 
           </div>
