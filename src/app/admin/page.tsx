@@ -5,11 +5,13 @@ import { motion } from 'framer-motion';
 import { Upload, FileText, Save, Image as ImageIcon, Music as MusicIcon, Trash2, Plus, X } from 'lucide-react';
 import { PostData } from '@/lib/posts';
 import { getStaticUrl } from '@/lib/utils';
+import { useMusic } from '@/components/music-context';
 
 export default function AdminPage() {
     const [activeTab, setActiveTab] = useState<'post' | 'manage-posts' | 'music' | 'manage-music' | 'profile'>('post');
     const [password, setPassword] = useState('');
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const { refreshTracks } = useMusic();
 
     // Post State
     const [title, setTitle] = useState('');
@@ -207,6 +209,7 @@ export default function AdminPage() {
                 setMusicCover(null);
                 setMusicTitle('');
                 setMusicArtist('');
+                refreshTracks();
                 setActiveTab('manage-music');
             } else {
                 alert('上传失败');

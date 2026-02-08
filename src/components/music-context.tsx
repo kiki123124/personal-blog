@@ -20,6 +20,7 @@ interface MusicContextType {
     prevTrack: () => void;
     togglePlayPause: () => void;
     loadTracks: (tracks: MusicTrack[]) => void;
+    refreshTracks: () => void;
 }
 
 const MusicContext = createContext<MusicContextType | undefined>(undefined);
@@ -31,12 +32,16 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
     const [activeIndex, setActiveIndex] = useState<number>(-1);
     const audioRef = useRef<HTMLAudioElement>(null);
 
-    // Load tracks from API on mount
-    useEffect(() => {
+    const refreshTracks = () => {
         fetch('/api/music')
             .then((res) => res.json())
             .then((data) => setTracks(data))
             .catch((err) => console.error("Failed to load tracks", err));
+    };
+
+    // Load tracks from API on mount
+    useEffect(() => {
+        refreshTracks();
     }, []);
 
     const playTrack = (index: number) => {
@@ -108,6 +113,7 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
                 prevTrack,
                 togglePlayPause,
                 loadTracks,
+                refreshTracks,
             }}
         >
             {children}
