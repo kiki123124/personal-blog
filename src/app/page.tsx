@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowUpRight, Circle, Mouse } from "lucide-react";
+import { ArrowUpRight, Circle, Mouse, Sun, Moon } from "lucide-react";
+import { useTheme } from "next-themes";
 import { motion, useMotionValue, useSpring, useTransform, AnimatePresence, useInView } from "framer-motion";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -169,7 +170,7 @@ function MagneticImage({ src, alt }: { src: string; alt: string }) {
           transition={{ delay: 0.9, duration: 0.5 }}
         />
         <p className="text-sm uppercase tracking-widest text-neutral-600 dark:text-neutral-400">
-          Designer & Developer
+          Reader & Writer
         </p>
       </motion.div>
     </div>
@@ -232,6 +233,20 @@ function LiquidButton({ href, children }: { href: string; children: React.ReactN
   );
 }
 
+function ThemeToggleButton() {
+  const { theme, setTheme } = useTheme();
+  return (
+    <motion.button
+      className="fixed top-6 right-6 z-50 p-2 rounded-full border border-neutral-300 dark:border-neutral-700 bg-stone-50 dark:bg-neutral-900 text-neutral-900 dark:text-neutral-50"
+      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+      whileHover={{ scale: 1.1 }}
+      whileTap={{ scale: 0.9 }}
+    >
+      {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+    </motion.button>
+  );
+}
+
 export default function Home() {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
@@ -273,6 +288,9 @@ export default function Home() {
         style={{ width: `${scrollProgress}%` }}
       />
 
+      {/* Theme Toggle */}
+      <ThemeToggleButton />
+
       {/* Hero Section */}
       <section className="min-h-screen flex items-center justify-center px-6 md:px-12 lg:px-20 py-20 relative overflow-hidden">
 
@@ -294,7 +312,7 @@ export default function Home() {
               {profile?.avatar ? (
                 <MagneticImage
                   src={getStaticUrl(profile.avatar)}
-                  alt="Kiki Chen"
+                  alt="Kiki Luo"
                 />
               ) : (
                 <MagneticImage
@@ -323,7 +341,7 @@ export default function Home() {
                     animate={{ y: 0 }}
                     transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
                   >
-                    Kiki<br/>Chen
+                    Kiki<br/>Luo
                   </motion.h1>
                 </div>
 
@@ -341,7 +359,7 @@ export default function Home() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.7, duration: 0.6 }}
                 >
-                  Crafting thoughtful digital experiences where form meets function, precision meets creativity.
+                  04年生，爱阅读，有点文艺。喜欢把生活里细碎的感受写下来，用文字留住那些转瞬即逝的时刻。
                 </motion.p>
               </motion.div>
 
