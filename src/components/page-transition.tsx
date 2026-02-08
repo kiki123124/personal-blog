@@ -7,26 +7,29 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   return (
-    <AnimatePresence mode="wait">
-      <motion.div key={pathname}>
-        {/* 遮罩入场 */}
+    <>
+      <AnimatePresence mode="wait">
         <motion.div
-          className="fixed inset-0 z-[100] bg-neutral-950 origin-top"
-          initial={{ scaleY: 1 }}
-          animate={{ scaleY: 0 }}
-          exit={{ scaleY: 1 }}
-          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        />
-        {/* 内容淡入 */}
-        <motion.div
+          key={pathname}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.3, delay: 0.2 }}
+          transition={{ duration: 0.25 }}
         >
           {children}
         </motion.div>
-      </motion.div>
-    </AnimatePresence>
+      </AnimatePresence>
+
+      {/* 遮罩覆盖层 - 独立于内容，用 bg-background 自适应主题 */}
+      <AnimatePresence>
+        <motion.div
+          key={`mask-${pathname}`}
+          className="fixed inset-0 z-[90] bg-background pointer-events-none origin-top"
+          initial={{ scaleY: 1 }}
+          animate={{ scaleY: 0 }}
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        />
+      </AnimatePresence>
+    </>
   );
 }
