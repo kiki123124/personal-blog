@@ -370,7 +370,7 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.9 }}
               >
-                <AnimatedCounter value="5+" label="Years" />
+                <AnimatedCounter value={new Date().getFullYear() - 2004} label="岁" />
                 <AnimatedCounter value={posts.length} label="Articles" />
                 <AnimatedCounter value={profile?.works?.length || 3} label="Projects" />
               </motion.div>

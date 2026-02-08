@@ -13,7 +13,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Kiki Chen — Designer & Developer",
+  title: "Kiki Luo — Reader & Writer",
   description: "Personal site and digital garden. Writing about design, technology, and craft.",
 };
 
@@ -40,9 +40,10 @@ export default function RootLayout({
                 <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
                   <Link
                     href="/"
-                    className="text-lg font-semibold tracking-tight hover:text-muted-foreground transition-colors"
+                    className="text-lg font-semibold tracking-tight hover:text-muted-foreground transition-colors flex items-center gap-2"
                   >
-                    Kiki Chen
+                    <span className="inline-block w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                    Kiki Luo
                   </Link>
                   <div className="flex items-center gap-8 text-sm">
                     <Link href="/blog" className="hover:text-foreground text-muted-foreground transition-colors">
@@ -51,6 +52,12 @@ export default function RootLayout({
                     <Link href="/music" className="hover:text-foreground text-muted-foreground transition-colors">
                       Music
                     </Link>
+                    <a href="https://github.com/kiki123124" target="_blank" rel="noopener noreferrer" className="hover:text-foreground text-muted-foreground transition-colors">
+                      GitHub
+                    </a>
+                    <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground text-muted-foreground transition-colors">
+                      X
+                    </a>
                     <Link href="/admin" className="hover:text-foreground text-muted-foreground transition-colors">
                       Admin
                     </Link>
@@ -65,16 +72,8 @@ export default function RootLayout({
 
               {/* Footer */}
               <footer className="border-t border-white/5 py-12 px-6">
-                <div className="max-w-7xl mx-auto flex items-center justify-between text-sm text-muted-foreground">
-                  <p>© {new Date().getFullYear()} Kiki Chen</p>
-                  <div className="flex gap-6">
-                    <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
-                      GitHub
-                    </a>
-                    <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
-                      X
-                    </a>
-                  </div>
+                <div className="max-w-7xl mx-auto text-sm text-muted-foreground">
+                  <p>© {new Date().getFullYear()} Kiki Luo</p>
                 </div>
               </footer>
 
