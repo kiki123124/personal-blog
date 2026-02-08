@@ -1,36 +1,21 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
 import { ThemeProvider } from "@/components/theme-provider";
+import { MusicProvider } from "@/components/music-context";
+import { GlobalMusicPlayer } from "@/components/global-music-player";
+import { SmoothScroll } from "@/components/smooth-scroll";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: "Kiki's Space",
-  description: "A digital garden for thoughts, stories, and music.",
+  title: "Kiki Chen — Designer & Developer",
+  description: "Personal site and digital garden. Writing about design, technology, and craft.",
 };
-
-import { SmoothScroll } from "@/components/smooth-scroll";
-import PixelBackground from "@/components/pixel-background";
-
-// ... imports
-
-import { PaletteToggle } from "@/components/palette-toggle";
-import { NavAvatar } from "@/components/nav-avatar";
-import { VisualProvider } from "@/components/visual-context";
-import { SpeedControl } from "@/components/speed-control";
-import { AdvancedToggle } from "@/components/advanced-toggle";
-import { MusicProvider } from "@/components/music-context";
-import { GlobalMusicPlayer } from "@/components/global-music-player";
 
 export default function RootLayout({
   children,
@@ -38,9 +23,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh-CN" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col transition-colors duration-300`}
+        className={`${inter.variable} antialiased min-h-screen flex flex-col font-sans`}
       >
         <ThemeProvider
           attribute="class"
@@ -48,44 +33,54 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <VisualProvider>
-            <MusicProvider>
-              <PixelBackground />
-              <SmoothScroll>
-                <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 glass-panel">
-                  <Link href="/" className="text-xl font-bold tracking-tighter hover:text-primary/80 transition-colors relative group overflow-hidden">
-                    <span className="relative z-10 group-hover:animate-pulse group-hover:text-primary transition-colors duration-300">Kiki's Space</span>
-                    <span className="absolute top-0 left-0 -translate-x-full group-hover:translate-x-0 transition-transform duration-300 text-primary opacity-70 blur-[2px] mix-blend-screen">Kiki's Space</span>
-                    <span className="absolute top-0 left-0 translate-x-full group-hover:translate-x-0 transition-transform duration-500 text-blue-400 opacity-70 blur-[2px] mix-blend-screen delay-75">Kiki's Space</span>
+          <MusicProvider>
+            <SmoothScroll>
+              {/* Navigation */}
+              <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-background/80 border-b border-white/5">
+                <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+                  <Link
+                    href="/"
+                    className="text-lg font-semibold tracking-tight hover:text-muted-foreground transition-colors"
+                  >
+                    Kiki Chen
                   </Link>
-                  <div className="flex items-center gap-6 text-sm font-medium text-muted-foreground">
-                    <PaletteToggle />
-                    <Link href="/blog" className="hover:text-foreground transition-colors">
-                      博客
+                  <div className="flex items-center gap-8 text-sm">
+                    <Link href="/blog" className="hover:text-foreground text-muted-foreground transition-colors">
+                      Writing
                     </Link>
-                    <Link href="/music" className="hover:text-foreground transition-colors">
-                      音乐
+                    <Link href="/music" className="hover:text-foreground text-muted-foreground transition-colors">
+                      Music
                     </Link>
-                    <Link href="/admin" className="hover:text-foreground transition-colors">
-                      管理
+                    <Link href="/admin" className="hover:text-foreground text-muted-foreground transition-colors">
+                      Admin
                     </Link>
-                    <NavAvatar />
                   </div>
-                </nav>
-                <main className="flex-1 pt-24 px-6 max-w-4xl mx-auto w-full">
-                  {children}
-                </main>
-                <footer className="py-8 text-center text-xs text-muted-foreground">
-                  © {new Date().getFullYear()} Kiki's Space. All rights reserved.
-                </footer>
-              </SmoothScroll>
-              <SpeedControl />
-              <div className="fixed bottom-6 right-6 z-50">
-                <AdvancedToggle />
-              </div>
+                </div>
+              </nav>
+
+              {/* Main Content */}
+              <main className="flex-1 pt-16">
+                {children}
+              </main>
+
+              {/* Footer */}
+              <footer className="border-t border-white/5 py-12 px-6">
+                <div className="max-w-7xl mx-auto flex items-center justify-between text-sm text-muted-foreground">
+                  <p>© {new Date().getFullYear()} Kiki Chen</p>
+                  <div className="flex gap-6">
+                    <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
+                      GitHub
+                    </a>
+                    <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
+                      X
+                    </a>
+                  </div>
+                </div>
+              </footer>
+
               <GlobalMusicPlayer />
-            </MusicProvider>
-          </VisualProvider>
+            </SmoothScroll>
+          </MusicProvider>
         </ThemeProvider>
       </body>
     </html>

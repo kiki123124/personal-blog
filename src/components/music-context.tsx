@@ -44,8 +44,14 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
 
         const track = tracks[index];
         if (currentTrack?.filename === track.filename) {
-            // Same track, toggle play/pause
-            togglePlayPause();
+            // Same track - if not playing, start playing; if playing, do nothing (prevent restart)
+            if (!isPlaying) {
+                setIsPlaying(true);
+                if (audioRef.current) {
+                    audioRef.current.play();
+                }
+            }
+            // If already playing, do nothing (prevent duplicate playback)
         } else {
             // New track
             setCurrentTrack(track);
