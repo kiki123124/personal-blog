@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs from 'fs/promises';
 import path from 'path';
 import matter from 'gray-matter';
 
@@ -13,40 +13,27 @@ export interface PostData {
     coverImage?: string;
 }
 
-export function getSortedPostsData(): PostData[] {
-    // Create directory if it doesn't exist
-    if (!fs.existsSync(postsDirectory)) {
-        fs.mkdirSync(postsDirectory, { recursive: true });
-    }
-
-    const fileNames = fs.readdirSync(postsDirectory);
-    const allPostsData = fileNames.map((fileName) => {
+export async function getSortedPostsData(): Promise<PostData[]> {
+    await fs.mkdir(postsDirectory, { recursive: true });
+    const fileNames = await fs.readdir(postsDirectory);
+    const allPostsData = await Promise.all(fileNames.map(async (fileName) => {
         const slug = fileName.replace(/\.md$/, '');
         const fullPath = path.join(postsDirectory, fileName);
-        const fileContents = fs.readFileSync(fullPath, 'utf8');
+        const fileContents = await fs.readFile(fullPath, 'utf8');
         const matterResult = matter(fileContents);
-
         return {
             slug,
             ...(matterResult.data as { title: string; date: string; excerpt: string; coverImage?: string }),
             content: matterResult.content,
         } as PostData;
-    });
-
-    return allPostsData.sort((a, b) => {
-        if (a.date < b.date) {
-            return 1;
-        } else {
-            return -1;
-        }
-    });
+    }));
+    return allPostsData.sort((a, b) => (a.date < b.date ? 1 : -1));
 }
 
-export function getPostData(slug: string): PostData {
+export async function getPostData(slug: string): Promise<PostData> {
     const fullPath = path.join(postsDirectory, `${slug}.md`);
-    const fileContents = fs.readFileSync(fullPath, 'utf8');
+    const fileContents = await fs.readFile(fullPath, 'utf8');
     const matterResult = matter(fileContents);
-
     return {
         slug,
         ...(matterResult.data as { title: string; date: string; excerpt: string; coverImage?: string }),
@@ -54,10 +41,8 @@ export function getPostData(slug: string): PostData {
     } as PostData;
 }
 
-export function createPost(data: PostData) {
-    if (!fs.existsSync(postsDirectory)) {
-        fs.mkdirSync(postsDirectory, { recursive: true });
-    }
+export async function createPost(data: PostData) {
+    await fs.mkdir(postsDirectory, { recursive: true });
     const fullPath = path.join(postsDirectory, `${data.slug}.md`);
     const fileContent = matter.stringify(data.content, {
         title: data.title,
@@ -65,12 +50,10 @@ export function createPost(data: PostData) {
         excerpt: data.excerpt,
         coverImage: data.coverImage
     });
-    fs.writeFileSync(fullPath, fileContent);
+    await fs.writeFile(fullPath, fileContent);
 }
 
-export function deletePost(slug: string) {
+export async function deletePost(slug: string) {
     const fullPath = path.join(postsDirectory, `${slug}.md`);
-    if (fs.existsSync(fullPath)) {
-        fs.unlinkSync(fullPath);
-    }
+    await fs.unlink(fullPath).catch(() => {});
 }

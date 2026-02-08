@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs';
+import fs from 'fs/promises';
 import path from 'path';
-import { writeFile } from 'fs/promises';
 
 const dataFile = path.join(process.cwd(), 'src/content/profile.json');
 
@@ -24,25 +23,22 @@ interface ProfileData {
     }[];
 }
 
-function getProfileData(): ProfileData {
-    if (!fs.existsSync(dataFile)) {
-        return {
-            skills: ['✨ 创意设计', '🎵 音乐鉴赏', '📝 写作', '🐱 撸猫高手']
-        };
+async function getProfileData(): Promise<ProfileData> {
+    try {
+        const data = await fs.readFile(dataFile, 'utf8');
+        return JSON.parse(data);
+    } catch {
+        return { skills: ['✨ 创意设计', '🎵 音乐鉴赏', '📝 写作', '🐱 撸猫高手'] };
     }
-    const data = fs.readFileSync(dataFile, 'utf8');
-    return JSON.parse(data);
 }
 
-function saveProfileData(data: ProfileData) {
-    if (!fs.existsSync(path.dirname(dataFile))) {
-        fs.mkdirSync(path.dirname(dataFile), { recursive: true });
-    }
-    fs.writeFileSync(dataFile, JSON.stringify(data, null, 2));
+async function saveProfileData(data: ProfileData) {
+    await fs.mkdir(path.dirname(dataFile), { recursive: true });
+    await fs.writeFile(dataFile, JSON.stringify(data, null, 2));
 }
 
 export async function GET() {
-    const data = getProfileData();
+    const data = await getProfileData();
     return NextResponse.json(data);
 }
 
@@ -52,37 +48,27 @@ export async function POST(request: Request) {
         const avatarFile = formData.get('avatar') as File | null;
         const skills = formData.get('skills') as string | null;
 
-        const currentData = getProfileData();
+        const currentData = await getProfileData();
         const newData: ProfileData = { ...currentData };
 
         if (avatarFile) {
             const buffer = Buffer.from(await avatarFile.arrayBuffer());
             const filename = 'avatar_' + Date.now() + '_' + avatarFile.name.replace(/\s/g, '_');
             const uploadDir = path.join(process.cwd(), 'public/uploads');
-
-            if (!fs.existsSync(uploadDir)) {
-                fs.mkdirSync(uploadDir, { recursive: true });
-            }
-
-            await writeFile(path.join(uploadDir, filename), buffer);
+            await fs.mkdir(uploadDir, { recursive: true });
+            await fs.writeFile(path.join(uploadDir, filename), buffer);
             newData.avatar = `/uploads/${filename}`;
         }
 
-        if (skills) {
-            newData.skills = JSON.parse(skills);
-        }
+        if (skills) newData.skills = JSON.parse(skills);
 
         const socials = formData.get('socials') as string | null;
-        if (socials) {
-            newData.socials = JSON.parse(socials);
-        }
+        if (socials) newData.socials = JSON.parse(socials);
 
         const works = formData.get('works') as string | null;
-        if (works) {
-            newData.works = JSON.parse(works);
-        }
+        if (works) newData.works = JSON.parse(works);
 
-        saveProfileData(newData);
+        await saveProfileData(newData);
         return NextResponse.json({ Message: "Success", data: newData, status: 200 });
     } catch (error) {
         console.log("Error occured ", error);
