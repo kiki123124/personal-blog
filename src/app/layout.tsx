@@ -6,6 +6,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { MusicProvider } from "@/components/music-context";
 import { GlobalMusicPlayer } from "@/components/global-music-player";
 import { SmoothScroll } from "@/components/smooth-scroll";
+import { LoadingScreen } from "@/components/loading-screen";
+import { PageTransition } from "@/components/page-transition";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -33,6 +35,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <LoadingScreen />
           <MusicProvider>
             <SmoothScroll>
               {/* Navigation */}
@@ -61,7 +64,7 @@ export default function RootLayout({
 
               {/* Main Content */}
               <main className="flex-1 pt-16">
-                {children}
+                <PageTransition>{children}</PageTransition>
               </main>
 
               {/* Footer */}
