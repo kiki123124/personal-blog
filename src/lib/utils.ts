@@ -14,9 +14,9 @@ export function cn(...inputs: ClassValue[]) {
 export function getStaticUrl(url: string | undefined): string {
     if (!url) return '';
 
-    // If it's an uploads path, convert to API route
+    // Nginx serves /uploads/ directly, no need for API route
     if (url.startsWith('/uploads/')) {
-        return `/api/static${url}`;
+        return url;
     }
 
     // Return as-is for external URLs or other paths
