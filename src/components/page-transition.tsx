@@ -8,26 +8,16 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={pathname}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.25 }}
-        >
-          {children}
-        </motion.div>
-      </AnimatePresence>
+      {children}
 
-      {/* 遮罩覆盖层 - 独立于内容，用 bg-background 自适应主题 */}
+      {/* 遮罩：每次路由变化时从顶部扫过再收起 */}
       <AnimatePresence>
         <motion.div
           key={`mask-${pathname}`}
           className="fixed inset-0 z-[90] bg-background pointer-events-none origin-top"
           initial={{ scaleY: 1 }}
           animate={{ scaleY: 0 }}
-          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
         />
       </AnimatePresence>
     </>
