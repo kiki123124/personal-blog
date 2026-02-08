@@ -52,15 +52,6 @@ export default function RootLayout({
                     <Link href="/music" className="hover:text-foreground text-muted-foreground transition-colors">
                       Music
                     </Link>
-                    <a href="https://github.com/kiki123124" target="_blank" rel="noopener noreferrer" className="hover:text-foreground text-muted-foreground transition-colors">
-                      GitHub
-                    </a>
-                    <a href="https://t.me/shareeeeeegroup" target="_blank" rel="noopener noreferrer" className="hover:text-foreground text-muted-foreground transition-colors">
-                      Telegram
-                    </a>
-                    <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground text-muted-foreground transition-colors">
-                      X
-                    </a>
                     <Link href="/admin" className="hover:text-foreground text-muted-foreground transition-colors">
                       Admin
                     </Link>

@@ -304,7 +304,7 @@ export default function Home() {
 
             {/* Left: Avatar with Magnetic Effect */}
             <motion.div
-              className="lg:col-span-5"
+              className="lg:col-span-5 flex flex-col items-center lg:items-start gap-4"
               initial={{ opacity: 0, x: -50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
@@ -320,6 +320,31 @@ export default function Home() {
                   alt="K"
                 />
               )}
+              {/* Social Links */}
+              <motion.div
+                className="flex gap-4 text-xs"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.0 }}
+              >
+                {[
+                  { label: "GitHub", href: "https://github.com/kiki123124" },
+                  { label: "Telegram", href: "https://t.me/kikn1ght" },
+                  { label: "X", href: "https://x.com/0xBlaz_e" },
+                ].map((s) => (
+                  <motion.a
+                    key={s.label}
+                    href={s.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-1 rounded-full border border-neutral-300 dark:border-neutral-700 text-neutral-500 dark:text-neutral-400 hover:border-amber-500 hover:text-amber-500 transition-all duration-300"
+                    whileHover={{ scale: 1.08, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    {s.label}
+                  </motion.a>
+                ))}
+              </motion.div>
             </motion.div>
 
             {/* Right: Text with Staggered Animation */}
