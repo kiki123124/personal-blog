@@ -497,6 +497,7 @@ export default function AdminPage() {
 function ManageMusic() {
     const [tracks, setTracks] = useState<MusicTrack[]>([]);
     const [loading, setLoading] = useState(true);
+    const { refreshTracks } = useMusic();
 
     const fetchTracks = () => {
         fetch('/api/music')
@@ -514,9 +515,12 @@ function ManageMusic() {
     const handleDelete = async (filename: string) => {
         if (!confirm('确定要删除这首歌吗？')) return;
 
+        const adminToken = localStorage.getItem('adminToken') || '';
         const res = await fetch(`/api/music?filename=${filename}`, {
             method: 'DELETE',
-            headers: getAuthHeaders(),
+            headers: {
+                'Authorization': `Bearer ${adminToken}`
+            },
         });
 
         if (res.ok) {
@@ -581,9 +585,12 @@ function ManagePosts({ onEdit }: { onEdit: (post: PostData) => void }) {
     const handleDelete = async (slug: string) => {
         if (!confirm('确定要删除这篇文章吗？')) return;
 
+        const adminToken = localStorage.getItem('adminToken') || '';
         const res = await fetch(`/api/posts?slug=${slug}`, {
             method: 'DELETE',
-            headers: getAuthHeaders(),
+            headers: {
+                'Authorization': `Bearer ${adminToken}`
+            },
         });
 
         if (res.ok) {
