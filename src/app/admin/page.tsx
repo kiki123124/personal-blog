@@ -18,29 +18,7 @@ export default function AdminPage() {
     const [activeTab, setActiveTab] = useState<'post' | 'manage-posts' | 'music' | 'manage-music' | 'profile'>('post');
     const [password, setPassword] = useState('');
     const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [adminToken, setAdminToken] = useState('');
     const { refreshTracks } = useMusic();
-
-    // 从 localStorage 加载 token
-    useEffect(() => {
-        const savedToken = localStorage.getItem('adminToken');
-        if (savedToken) {
-            setAdminToken(savedToken);
-        }
-    }, []);
-
-    // 保存 token 到 localStorage
-    const saveToken = (token: string) => {
-        setAdminToken(token);
-        localStorage.setItem('adminToken', token);
-    };
-
-    // 获取认证 header
-    const getAuthHeaders = () => {
-        return {
-            'Authorization': `Bearer ${adminToken}`
-        };
-    };
 
     // Post State
     const [title, setTitle] = useState('');
@@ -256,33 +234,6 @@ export default function AdminPage() {
 
     return (
         <div className="space-y-8 pb-20">
-            {/* Admin Token Input */}
-            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
-                <label className="block text-sm font-medium mb-2">
-                    管理员 Token（删除/修改操作需要）
-                </label>
-                <div className="flex gap-2">
-                    <input
-                        type="password"
-                        value={adminToken}
-                        onChange={(e) => saveToken(e.target.value)}
-                        placeholder="输入 ADMIN_TOKEN"
-                        className="flex-1 px-3 py-2 border border-border rounded-md bg-background"
-                    />
-                    {adminToken && (
-                        <button
-                            onClick={() => saveToken('')}
-                            className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-                        >
-                            清除
-                        </button>
-                    )}
-                </div>
-                <p className="text-xs text-muted-foreground mt-2">
-                    Token 保存在浏览器本地存储中。服务器的 ADMIN_TOKEN 可以通过环境变量设置。
-                </p>
-            </div>
-
             <header className="flex flex-col md:flex-row items-center justify-between gap-4">
                 <h1 className="text-3xl font-bold tracking-tight">控制台</h1>
                 <div className="flex flex-wrap gap-2 bg-secondary p-1 rounded-lg border border-border">
@@ -515,12 +466,8 @@ function ManageMusic() {
     const handleDelete = async (filename: string) => {
         if (!confirm('确定要删除这首歌吗？')) return;
 
-        const adminToken = localStorage.getItem('adminToken') || '';
         const res = await fetch(`/api/music?filename=${filename}`, {
             method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${adminToken}`
-            },
         });
 
         if (res.ok) {
@@ -585,12 +532,8 @@ function ManagePosts({ onEdit }: { onEdit: (post: PostData) => void }) {
     const handleDelete = async (slug: string) => {
         if (!confirm('确定要删除这篇文章吗？')) return;
 
-        const adminToken = localStorage.getItem('adminToken') || '';
         const res = await fetch(`/api/posts?slug=${slug}`, {
             method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${adminToken}`
-            },
         });
 
         if (res.ok) {
