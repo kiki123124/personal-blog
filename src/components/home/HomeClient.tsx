@@ -211,13 +211,14 @@ export function HomeClient({ posts, music, profile }: HomeClientProps) {
 
                 {/* Rive 动画在名字旁边 - 可点击 */}
                 <motion.div
-                  className="w-24 h-24 md:w-32 md:h-32 flex-shrink-0 cursor-pointer"
+                  className="w-40 h-40 md:w-52 md:h-52 lg:w-64 lg:h-64 flex-shrink-0 cursor-pointer"
                   initial={{ opacity: 0, scale: 0.5, rotate: -180 }}
                   animate={{ opacity: 1, scale: 1, rotate: 0 }}
                   transition={{ delay: 0.5, duration: 0.8, type: "spring" }}
                   onClick={handleRiveClick}
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.98 }}
+                  style={{ imageRendering: 'crisp-edges' }}
                 >
                   <RiveComponent />
                 </motion.div>

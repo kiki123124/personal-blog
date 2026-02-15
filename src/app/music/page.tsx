@@ -46,6 +46,7 @@ export default function MusicPage() {
                                     fill
                                     className="object-cover"
                                     sizes="400px"
+                                    unoptimized
                                 />
                             ) : (
                                 <div className="w-full h-full bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center">
