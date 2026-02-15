@@ -17,18 +17,29 @@ A modern, minimalist React application built with Next.js, featuring a personal 
     npm install
     ```
 
-2.  **Run the development server**:
+2.  **Configure environment variables**:
+    ```bash
+    cp .env.example .env.local
+    ```
+
+    Edit `.env.local` and set your secure admin token:
+    ```
+    ADMIN_TOKEN=your-secure-random-token-here
+    ```
+
+3.  **Run the development server**:
     ```bash
     npm run dev
     ```
 
-3.  **Open the app**:
+4.  **Open the app**:
     Visit [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Admin Access
 
 - URL: `/admin`
-- Password: `admin123` (Hardcoded for demo purposes)
+- Password: `admin123` (Client-side only, change in production)
+- **API Security**: All write operations (POST/DELETE) require `Authorization: Bearer <ADMIN_TOKEN>` header
 
 ## Project Structure
 

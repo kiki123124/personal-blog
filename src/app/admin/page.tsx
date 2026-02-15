@@ -2,10 +2,17 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Upload, FileText, Save, Image as ImageIcon, Music as MusicIcon, Trash2, Plus, X } from 'lucide-react';
+import { FileText, Save, Image as ImageIcon, Music as MusicIcon, Trash2, Plus, X } from 'lucide-react';
 import { PostData } from '@/lib/posts';
 import { getStaticUrl } from '@/lib/utils';
 import { useMusic } from '@/components/music-context';
+
+interface MusicTrack {
+    filename: string;
+    title?: string;
+    artist?: string;
+    coverImage?: string;
+}
 
 export default function AdminPage() {
     const [activeTab, setActiveTab] = useState<'post' | 'manage-posts' | 'music' | 'manage-music' | 'profile'>('post');
@@ -160,27 +167,6 @@ export default function AdminPage() {
         setActiveTab('post');
     };
 
-    const handleContentImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
-        const formData = new FormData();
-        formData.append('file', file);
-
-        try {
-            const res = await fetch('/api/upload', { method: 'POST', body: formData });
-            if (res.ok) {
-                const data = await res.json();
-                const markdownImage = `\n![${file.name}](${data.url})\n`;
-                setContent(prev => prev + markdownImage);
-            } else {
-                alert('Image upload failed');
-            }
-        } catch (error) {
-            console.error('Upload error:', error);
-            alert('Upload error');
-        }
-    };
 
     const handleMusicUpload = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -460,8 +446,7 @@ export default function AdminPage() {
 }
 
 function ManageMusic() {
-    // ... (No changes needed here for now)
-    const [tracks, setTracks] = useState<any[]>([]);
+    const [tracks, setTracks] = useState<MusicTrack[]>([]);
     const [loading, setLoading] = useState(true);
 
     const fetchTracks = () => {

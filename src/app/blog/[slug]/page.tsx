@@ -1,7 +1,7 @@
 import { getPostData, getSortedPostsData } from '@/lib/posts';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
+import { Metadata } from 'next';
 
 // Generate static params for all posts
 export async function generateStaticParams() {
@@ -9,6 +9,52 @@ export async function generateStaticParams() {
     return posts.map((post) => ({
         slug: post.slug,
     }));
+}
+
+// Generate metadata for each post (SEO)
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+    const { slug } = await params;
+    const decodedSlug = decodeURIComponent(slug);
+
+    try {
+        const post = await getPostData(decodedSlug);
+        const baseUrl = 'https://kiki-luo.com'; // 替换为你的实际域名
+
+        return {
+            title: `${post.title} | Kiki Luo`,
+            description: post.excerpt || post.content.slice(0, 160),
+            authors: [{ name: 'Kiki Luo' }],
+            keywords: [post.title, 'blog', 'writing', 'Kiki Luo'],
+            openGraph: {
+                title: post.title,
+                description: post.excerpt || post.content.slice(0, 160),
+                type: 'article',
+                publishedTime: post.date,
+                authors: ['Kiki Luo'],
+                images: post.coverImage
+                    ? [
+                          {
+                              url: `${baseUrl}/api/static/uploads/${post.coverImage}`,
+                              width: 1200,
+                              height: 630,
+                              alt: post.title,
+                          },
+                      ]
+                    : [],
+            },
+            twitter: {
+                card: 'summary_large_image',
+                title: post.title,
+                description: post.excerpt || post.content.slice(0, 160),
+                images: post.coverImage ? [`${baseUrl}/api/static/uploads/${post.coverImage}`] : [],
+            },
+        };
+    } catch {
+        return {
+            title: 'Post Not Found | Kiki Luo',
+            description: 'The requested post could not be found.',
+        };
+    }
 }
 
 export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
