@@ -9,7 +9,7 @@ import { useMusic } from '@/components/music-context';
 import { getStaticUrl } from '@/lib/utils';
 
 export default function MusicPage() {
-    const { tracks, isPlaying, activeIndex, playTrack, nextTrack, prevTrack } = useMusic();
+    const { tracks, isPlaying, activeIndex, playTrack, nextTrack, prevTrack, togglePlayPause } = useMusic();
     const containerRef = useRef<HTMLDivElement>(null);
 
     useGSAP(() => {
@@ -90,7 +90,7 @@ export default function MusicPage() {
                             <Play className="rotate-180 fill-current text-foreground group-hover:text-primary transition-colors" size={24} />
                         </button>
 
-                        <button onClick={() => activeTrack && playTrack(activeIndex)} className="p-6 rounded-full bg-foreground text-background hover:scale-105 transition-transform shadow-[0_0_30px_rgba(255,255,255,0.3)]">
+                        <button onClick={togglePlayPause} className="p-6 rounded-full bg-foreground text-background hover:scale-105 transition-transform shadow-[0_0_30px_rgba(255,255,255,0.3)]">
                             {isPlaying ? (
                                 <Pause className="fill-current" size={32} />
                             ) : (

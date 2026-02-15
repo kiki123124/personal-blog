@@ -20,19 +20,19 @@ export function middleware(request: NextRequest) {
   const isProtectedPath = PROTECTED_PATHS.some(path => pathname.startsWith(path));
   const isProtectedMethod = PROTECTED_METHODS.includes(method);
 
-  // 如果是受保护的路径且是写操作，验证 token
-  if (isProtectedPath && isProtectedMethod) {
-    const authHeader = request.headers.get('authorization');
-    const adminToken = process.env.ADMIN_TOKEN || 'default-secret-token';
-
-    // 验证 Bearer token
-    if (!authHeader || authHeader !== `Bearer ${adminToken}`) {
-      return NextResponse.json(
-        { error: 'Unauthorized: Invalid or missing token' },
-        { status: 401 }
-      );
-    }
-  }
+  // Token 认证已禁用 - 允许直接操作
+  // if (isProtectedPath && isProtectedMethod) {
+  //   const authHeader = request.headers.get('authorization');
+  //   const adminToken = process.env.ADMIN_TOKEN || 'default-secret-token';
+  //
+  //   // 验证 Bearer token
+  //   if (!authHeader || authHeader !== `Bearer ${adminToken}`) {
+  //     return NextResponse.json(
+  //       { error: 'Unauthorized: Invalid or missing token' },
+  //       { status: 401 }
+  //     );
+  //   }
+  // }
 
   // Admin 页面也需要验证（可选，如果想要服务端保护）
   if (pathname.startsWith('/admin')) {
