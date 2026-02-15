@@ -2,11 +2,17 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
+import { useRive } from "@rive-app/react-canvas";
 
 const letters = ["K", "i", "k", "i", " ", "L", "u", "o"];
 
 export function LoadingScreen() {
   const [isVisible, setIsVisible] = useState(true);
+
+  const { RiveComponent } = useRive({
+    src: "/cloudy-walk.riv",
+    autoplay: true,
+  });
 
   useEffect(() => {
     const timer = setTimeout(() => setIsVisible(false), 3000);
@@ -22,6 +28,16 @@ export function LoadingScreen() {
           exit={{ opacity: 0, transition: { duration: 0.8, ease: "easeInOut" } }}
         >
           <div className="relative flex flex-col items-center">
+            {/* Rive 动画 */}
+            <motion.div
+              className="w-32 h-32 md:w-40 md:h-40 mb-6"
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, ease: "backOut" }}
+            >
+              <RiveComponent />
+            </motion.div>
+
             {/* 字母逐个弹入 */}
             <div className="flex items-end gap-1">
               {letters.map((letter, i) => (

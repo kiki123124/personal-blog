@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowUpRight, Circle } from "lucide-react";
 import { motion, useInView, useMotionValue, useSpring } from "framer-motion";
+import { useRive } from "@rive-app/react-canvas";
 import { getStaticUrl } from "@/lib/utils";
 
 interface Post {
@@ -161,6 +162,11 @@ function MagneticImage({ src, alt }: { src: string; alt: string }) {
 }
 
 export function HomeClient({ posts, music, profile }: HomeClientProps) {
+  const { RiveComponent } = useRive({
+    src: "/cloudy-walk.riv",
+    autoplay: true,
+  });
+
   return (
     <div className="w-full bg-stone-50 dark:bg-neutral-950 min-h-screen relative">
 
@@ -185,14 +191,26 @@ export function HomeClient({ posts, music, profile }: HomeClientProps) {
 
             {/* Content */}
             <div className="lg:col-span-7 space-y-8">
-              <motion.h1
-                className="text-6xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.9] text-neutral-900 dark:text-neutral-50"
-                initial={{ y: 100 }}
-                animate={{ y: 0 }}
-                transition={{ duration: 0.8 }}
-              >
-                Kiki<br />Luo
-              </motion.h1>
+              <div className="flex items-center gap-6">
+                <motion.h1
+                  className="text-6xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.9] text-neutral-900 dark:text-neutral-50"
+                  initial={{ y: 100 }}
+                  animate={{ y: 0 }}
+                  transition={{ duration: 0.8 }}
+                >
+                  Kiki<br />Luo
+                </motion.h1>
+
+                {/* Rive 动画在名字旁边 */}
+                <motion.div
+                  className="w-24 h-24 md:w-32 md:h-32 flex-shrink-0"
+                  initial={{ opacity: 0, scale: 0.5, rotate: -180 }}
+                  animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                  transition={{ delay: 0.5, duration: 0.8, type: "spring" }}
+                >
+                  <RiveComponent />
+                </motion.div>
+              </div>
 
               <motion.p
                 className="text-lg md:text-xl lg:text-2xl text-neutral-600 dark:text-neutral-400 max-w-xl"
