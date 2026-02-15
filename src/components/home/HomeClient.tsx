@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowUpRight, Circle } from "lucide-react";
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, useMotionValue, useSpring } from "framer-motion";
 import { getStaticUrl } from "@/lib/utils";
 
 interface Post {
@@ -86,6 +86,80 @@ function AnimatedCounter({ value, label }: { value: number | string; label: stri
   );
 }
 
+// Magnetic Image Component with decorative frames
+function MagneticImage({ src, alt }: { src: string; alt: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const springX = useSpring(x, { stiffness: 150, damping: 15 });
+  const springY = useSpring(y, { stiffness: 150, damping: 15 });
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    x.set((e.clientX - centerX) * 0.05);
+    y.set((e.clientY - centerY) * 0.05);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  return (
+    <div
+      ref={ref}
+      className="relative"
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+    >
+      {/* Decorative Swiss grid corner */}
+      <motion.div
+        className="absolute -top-8 -left-8 w-24 h-24 border-t-4 border-l-4 border-amber-500 z-20"
+        initial={{ scale: 0, rotate: -180 }}
+        animate={{ scale: 1, rotate: 0 }}
+        transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+      />
+
+      <motion.div
+        style={{ x: springX, y: springY }}
+        className="aspect-square overflow-hidden bg-neutral-900 dark:bg-neutral-100 relative group"
+        whileHover={{ scale: 1.02 }}
+        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      >
+        <Image
+          src={src}
+          alt={alt}
+          fill
+          className="object-cover"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          priority
+        />
+
+        {/* Subtle overlay on hover */}
+        <motion.div
+          className="absolute inset-0 bg-gradient-to-br from-amber-500/0 to-amber-500/0"
+          whileHover={{
+            background: "linear-gradient(to bottom right, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0))"
+          }}
+          transition={{ duration: 0.3 }}
+        />
+
+        {/* Accent corner */}
+        <motion.div
+          className="absolute bottom-0 right-0 w-32 h-32 bg-amber-500"
+          initial={{ x: 0, y: 0 }}
+          animate={{ x: 16, y: 16 }}
+          transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
+        />
+      </motion.div>
+    </div>
+  );
+}
+
 export function HomeClient({ posts, music, profile }: HomeClientProps) {
   return (
     <div className="w-full bg-stone-50 dark:bg-neutral-950 min-h-screen relative">
@@ -102,16 +176,10 @@ export function HomeClient({ posts, music, profile }: HomeClientProps) {
               transition={{ duration: 0.8 }}
             >
               {profile?.avatar && (
-                <div className="aspect-square overflow-hidden bg-neutral-900 dark:bg-neutral-100 relative">
-                  <Image
-                    src={getStaticUrl(profile.avatar)}
-                    alt="Kiki Luo"
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    priority
-                  />
-                </div>
+                <MagneticImage
+                  src={getStaticUrl(profile.avatar)}
+                  alt="Kiki Luo"
+                />
               )}
             </motion.div>
 
@@ -214,30 +282,52 @@ export function HomeClient({ posts, music, profile }: HomeClientProps) {
           <h2 className="text-4xl md:text-5xl font-black mb-12">Music</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {music.length > 0 ? (
-              music.map((track) => (
-                <Link key={track.filename} href="/music" className="group">
-                  <div className="aspect-square bg-neutral-900 dark:bg-neutral-100 overflow-hidden mb-4 relative">
-                    {track.coverImage ? (
-                      <Image
-                        src={getStaticUrl(track.coverImage)}
-                        alt={track.title || track.filename}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+              music.map((track, index) => (
+                <motion.div
+                  key={track.filename}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1, type: "spring", stiffness: 200 }}
+                >
+                  <Link href="/music" className="group block">
+                    <motion.div
+                      className="aspect-square bg-neutral-900 dark:bg-neutral-100 overflow-hidden relative border-2 border-neutral-900 dark:border-neutral-50 mb-4"
+                      whileHover={{
+                        scale: 1.05,
+                        rotate: 2,
+                        borderColor: "rgb(245, 158, 11)"
+                      }}
+                      transition={{ type: "spring", stiffness: 300 }}
+                    >
+                      {track.coverImage ? (
+                        <Image
+                          src={getStaticUrl(track.coverImage)}
+                          alt={track.title || track.filename}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Circle className="w-12 h-12 text-neutral-700 dark:text-neutral-300" />
+                        </div>
+                      )}
+                      <motion.div
+                        className="absolute inset-0 bg-amber-500"
+                        initial={{ opacity: 0 }}
+                        whileHover={{ opacity: 0.2 }}
+                        transition={{ duration: 0.3 }}
                       />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Circle className="w-12 h-12 text-neutral-700 dark:text-neutral-300" />
-                      </div>
-                    )}
-                  </div>
-                  <h4 className="font-semibold text-sm truncate">
-                    {track.title || track.filename}
-                  </h4>
-                  <p className="text-xs text-neutral-600 dark:text-neutral-400 truncate">
-                    {track.artist || 'Unknown'}
-                  </p>
-                </Link>
+                    </motion.div>
+                    <h4 className="font-semibold text-sm text-neutral-900 dark:text-neutral-50 mb-1 truncate group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                      {track.title || track.filename}
+                    </h4>
+                    <p className="text-xs text-neutral-600 dark:text-neutral-400 truncate">
+                      {track.artist || 'Unknown'}
+                    </p>
+                  </Link>
+                </motion.div>
               ))
             ) : (
               <p className="text-neutral-500 col-span-4">No music yet</p>
