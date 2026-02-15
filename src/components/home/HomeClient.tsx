@@ -162,10 +162,18 @@ function MagneticImage({ src, alt }: { src: string; alt: string }) {
 }
 
 export function HomeClient({ posts, music, profile }: HomeClientProps) {
-  const { RiveComponent } = useRive({
-    src: "/cloudy-walk.riv",
+  const { rive, RiveComponent } = useRive({
+    src: "/look.riv",
     autoplay: true,
+    stateMachines: "State Machine 1",
   });
+
+  const handleRiveClick = () => {
+    if (rive) {
+      // 触发 Rive 动画的状态变化
+      rive.play();
+    }
+  };
 
   return (
     <div className="w-full bg-stone-50 dark:bg-neutral-950 min-h-screen relative">
@@ -201,12 +209,15 @@ export function HomeClient({ posts, music, profile }: HomeClientProps) {
                   Kiki<br />Luo
                 </motion.h1>
 
-                {/* Rive 动画在名字旁边 */}
+                {/* Rive 动画在名字旁边 - 可点击 */}
                 <motion.div
-                  className="w-24 h-24 md:w-32 md:h-32 flex-shrink-0"
+                  className="w-24 h-24 md:w-32 md:h-32 flex-shrink-0 cursor-pointer"
                   initial={{ opacity: 0, scale: 0.5, rotate: -180 }}
                   animate={{ opacity: 1, scale: 1, rotate: 0 }}
                   transition={{ delay: 0.5, duration: 0.8, type: "spring" }}
+                  onClick={handleRiveClick}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
                 >
                   <RiveComponent />
                 </motion.div>
